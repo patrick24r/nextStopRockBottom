@@ -6,9 +6,8 @@ import urllib.request
 from typing import List
 
 MBTA_URL_ = "https://api-v3.mbta.com"
+MBTA_REQUEST_URL_ = MBTA_URL_ + "/{request_type}?"
 ROUTES_URL_ = MBTA_URL_ + "/routes?"
-PREDICTIONS_URL_ = MBTA_URL_ + "/predictions?"
-SCHEDULE_URL = MBTA_URL_ + "/schedules?"
 FILTER_BASE_ = "&filter[{name}]={value}"
 
 
@@ -23,14 +22,20 @@ def main():
     # Find the next times for that stop on those routes
     next_stop_times = []
     for route in routes:
-        next_stop_times = next_stop_times + get_next_stop_times(
+        stop_times_to_append = get_next_stop_times(
             stop_id, route["id"], route["direction_names"])
+        if stop_times_to_append is not None:
+            next_stop_times = next_stop_times + stop_times_to_append
+
+    # Remove next stop times that are not in the future
+    next_stop_times = [
+        time for time in next_stop_times if time["minutes"] > 0 and time["minutes"] < 120]
 
     # Sort by minutes until arrival
     next_stop_times = sorted(next_stop_times, key=lambda x: x["minutes"])
     for next in next_stop_times:
         print(str(next["route"]) + " " +
-              next["direction"] + ", " + str(next["minutes"]) + " min")
+              next["direction"] + ", " + str(next["minutes"]) + " min " + "(" + next["type"][0] + ")")
 
 
 def get_routes_for_stop(stop_id: int) -> List[dict]:
@@ -58,28 +63,31 @@ def get_routes_for_stop(stop_id: int) -> List[dict]:
 
 
 def get_next_stop_times(stop_id: int, route_id: int, directions: List[str]) -> List[dict]:
-    request_url = (PREDICTIONS_URL_ + "page[limit]=3"
-                   + create_filter_string("route", str(route_id))
-                   + create_filter_string("stop", str(stop_id))
-                   )
 
     return_info = []
 
-    with urllib.request.urlopen(request_url) as response:
-        data = json.loads(response.read())["data"]
-        if (len(data) == 0):
-            print("No predictions found for route: " +
-                  str(route_id) + ", stop_id: " + str(stop_id))
-            return
+    for request in {"predictions", "schedules"}:
+        request_url = (MBTA_REQUEST_URL_.format(request_type=request) + "page[limit]=3"
+                       + create_filter_string("route", str(route_id))
+                       + create_filter_string("stop", str(stop_id))
+                       )
+        with urllib.request.urlopen(request_url) as response:
+            data = json.loads(response.read())["data"]
+            if (len(data) == 0):
+                print("No " + request + " found for route: " +
+                      str(route_id) + ", stop_id: " + str(stop_id))
+                continue
 
-        for arrival in data:
-            arrival_time = datetime.fromisoformat(
-                arrival["attributes"]["arrival_time"]).replace(tzinfo=None)
-            minutes_until_arrival = round((
-                arrival_time - datetime.now()).total_seconds() / 60)
-            direction = directions[int(arrival["attributes"]["direction_id"])]
-            return_info.append(
-                {"route": route_id, "minutes": minutes_until_arrival, "direction": direction})
+            for arrival in data:
+                arrival_time = datetime.fromisoformat(
+                    arrival["attributes"]["arrival_time"]).replace(tzinfo=None)
+                minutes_until_arrival = round((
+                    arrival_time - datetime.now()).total_seconds() / 60)
+                direction = directions[int(
+                    arrival["attributes"]["direction_id"])]
+                return_info.append(
+                    {"type": request, "route": route_id, "minutes": minutes_until_arrival, "direction": direction})
+
     return return_info
 
 
