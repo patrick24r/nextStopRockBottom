@@ -1,0 +1,12 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
+cc_binary(
+  name = "next-stop-rock-bottom",
+  srcs = ["next_stop_rock_bottom.cc"],
+  data = ["config.json"],
+  deps = [
+    "//lib:printer",
+    "//lib:fetcher",
+    "@nlohmann_json//:json",
+  ],
+)

@@ -174,3 +174,11 @@ cython_debug/
 .pypirc
 
 .json
+
+/bazel-*
+
+# Bazel-specific IDE files (IntelliJ, CLion, Android Studio)
+/.aswb/
+/.clwb/
+/.ijwb/
+/.project/
