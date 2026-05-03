@@ -5,8 +5,8 @@ cc_binary(
   srcs = ["next_stop_rock_bottom.cc"],
   data = ["config.json"],
   deps = [
-    "//lib:printer",
-    "//lib:fetcher",
+    "//rockbottom:printer",
+    "//rockbottom:fetcher",
     "@nlohmann_json//:json",
   ],
 )

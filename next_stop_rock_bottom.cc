@@ -3,8 +3,8 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "lib/fetcher.h"
-#include "lib/printer.h"
+#include "rockbottom/fetcher.h"
+#include "rockbottom/printer.h"
 
 using ::nlohmann::json;
 using ::rockbottom::Fetcher;
