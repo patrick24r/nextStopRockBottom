@@ -24,20 +24,15 @@ int main() {
     json data = json::parse(file);
     stop_ids = data["stops"].get<std::vector<std::string>>();
 
-  } catch (json::parse_error& e) {
+  } catch (json::parse_error &e) {
     std::cerr << "Parse error: " << e.what() << std::endl;
     return 1;
   }
 
   // Get the bus times from the MBTA website
   auto bus_times = Fetcher::FetchTimes(stop_ids);
-  for (auto& prediction : bus_times) {
-    std::cout << "Route " << prediction.route_id << ": "
-              << prediction.destination << ", " << prediction.minutes_to_arrival
-              << " min" << std::endl;
-  }
 
   // Get times from the MBTA website
-  Printer::PrintTimes();
+  Printer::PrintTimes(bus_times);
   return 0;
 }
