@@ -1,24 +1,33 @@
 #include "printer.h"
 
-#include "graphics.h"
-#include "led-matrix.h"
-
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 
+#include "graphics.h"
+#include "led-matrix.h"
+
 namespace {
 
-using rgb_matrix::RuntimeOptions;
-using rgb_matrix::RGBMatrix::Options;
+using rgb_matrix::RGBMatrix;
 
-} // namespace
+}  // namespace
 
 namespace rockbottom {
 
 void Printer::PrintTimes(std::vector<BusTime> bus_times) {
   int rowsToPrint = kHeightPixels / kFontHeightPixels;
+
+  RGBMatrix::Options matrix_options;
+
+  std::string error;
+  if (matrix_options.Validate(&error)) {
+    std::cout << "Valid RGB Options" << std::endl;
+  } else {
+    std::cout << "Invalid RGB Options" << std::endl;
+  }
+
   if (IsRaspberryPi()) {
     std::cout << "Raspberry Pi detected!" << std::endl;
   } else {
@@ -44,4 +53,4 @@ bool Printer::IsRaspberryPi() {
   return false;
 }
 
-} // namespace rockbottom
+}  // namespace rockbottom
