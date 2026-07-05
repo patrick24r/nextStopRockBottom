@@ -20,6 +20,11 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
   int rowsToPrint = kHeightPixels / kFontHeightPixels;
 
   RGBMatrix::Options matrix_options;
+  matrix_options.hardware_mapping = "adafruit-hat";
+  matrix_options.rows = 32;
+  matrix_options.cols = 64;
+  matrix_options.chain_length = 1;
+  matrix_options.parallel = 1;
 
   std::string error;
   if (matrix_options.Validate(&error)) {
@@ -31,6 +36,7 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
   if (IsRaspberryPi()) {
     std::cout << "Raspberry Pi detected!" << std::endl;
   } else {
+    std::cout << "Not a Raspberry Pi!" << std::endl;
   }
 }
 
