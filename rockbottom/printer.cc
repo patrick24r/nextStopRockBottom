@@ -41,7 +41,7 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
 }
 
 bool Printer::IsRaspberryPi() {
-  std::ifstream file("/etc/os-release");
+  std::ifstream file("/proc/device-tree/model");
   if (!file.is_open()) {
     return false;
   }
@@ -49,11 +49,8 @@ bool Printer::IsRaspberryPi() {
   std::string line;
   while (std::getline(file, line)) {
     // Look for the ID key specifically
-    if (line.find("ID=") == 0 || line.find("ID_LIKE=") == 0) {
-      if (line.find("raspbian") != std::string::npos ||
-          line.find("raspberrypi") != std::string::npos) {
-        return true;
-      }
+    if (line.find("Raspberry Pi") == 0) {
+      return true;
     }
   }
   return false;

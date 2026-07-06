@@ -92,7 +92,7 @@ std::vector<Fetcher::BusTime> Fetcher::GetPredictedTimes(std::string stop_id,
     // Find the minutes until departure
     std::string departure_time = prediction["attributes"]["departure_time"];
     std::istringstream is{departure_time};
-    is.imbue(std::locale("en_US.UTF-8"));
+    is.imbue(std::locale(""));
     std::chrono::sys_seconds departure_timestamp;
     is >> std::chrono::parse(kDateFormat, departure_timestamp);
     if (!is.fail()) {

@@ -24,7 +24,7 @@ int main() {
     json data = json::parse(file);
     stop_ids = data["stops"].get<std::vector<std::string>>();
 
-  } catch (json::parse_error &e) {
+  } catch (json::parse_error& e) {
     std::cerr << "Parse error: " << e.what() << std::endl;
     return 1;
   }
