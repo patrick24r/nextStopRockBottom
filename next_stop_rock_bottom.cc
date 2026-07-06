@@ -32,7 +32,9 @@ int main() {
   // Get the bus times from the MBTA website
   auto bus_times = Fetcher::FetchTimes(stop_ids);
 
-  // Get times from the MBTA website
+  // Print the bus times
   Printer::PrintTimes(bus_times);
+  while (1) {
+  }
   return 0;
 }

@@ -10,6 +10,7 @@ class Printer {
  public:
   using BusTime = Fetcher::BusTime;
   static void PrintTimes(std::vector<BusTime> bus_times);
+  static void Clear();
 
  private:
   static constexpr const char* kHardwareMapping = "adafruit-hat";

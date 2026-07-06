@@ -11,32 +11,62 @@
 namespace {
 
 using rgb_matrix::RGBMatrix;
+using rgb_matrix::RuntimeOptions;
 
 }  // namespace
 
 namespace rockbottom {
 
+static RGBMatrix* rgb_matrix = nullptr;
+
 void Printer::PrintTimes(std::vector<BusTime> bus_times) {
   int rowsToPrint = kHeightPixels / kFontHeightPixels;
 
-  RGBMatrix::Options matrix_options;
-  matrix_options.hardware_mapping = "adafruit-hat";
-  matrix_options.rows = 32;
-  matrix_options.cols = 64;
-  matrix_options.chain_length = 1;
-  matrix_options.parallel = 1;
-
-  std::string error;
-  if (matrix_options.Validate(&error)) {
-    std::cout << "Valid RGB Options" << std::endl;
-  } else {
-    std::cout << "Invalid RGB Options" << std::endl;
-  }
-
   if (IsRaspberryPi()) {
     std::cout << "Raspberry Pi detected!" << std::endl;
+
+    RGBMatrix::Options matrix_options;
+    matrix_options.hardware_mapping = kHardwareMapping;
+    matrix_options.rows = kPanelHeightPixels;
+    matrix_options.cols = kPanelWidthPixels;
+    matrix_options.chain_length = kPanelCount;
+    matrix_options.parallel = 1;
+
+    RuntimeOptions runtime_options;
+    runtime_options.drop_privileges = 1;
+
+    std::string error;
+    if (!matrix_options.Validate(&error)) {
+      std::cerr << "Invalid RGB Options" << std::endl;
+      return;
+    }
+
+    // If RGB matrix is not initialized, try to initialize it
+    if (!rgb_matrix) {
+      rgb_matrix =
+          RGBMatrix::CreateFromOptions(matrix_options, runtime_options);
+    }
+
+    // If still not initialized, return failure
+    if (!rgb_matrix) {
+      std::cerr << "Failed to create RGB Matrix" << std::endl;
+      return;
+    }
+
+    rgb_matrix->Fill(63, 63, 0);
+
   } else {
-    std::cout << "Not a Raspberry Pi!" << std::endl;
+    // Just print to console
+    for (auto& time : bus_times) {
+      std::cout << time.route_id << " " << time.destination << " "
+                << time.minutes_to_arrival << " min" << std::endl;
+    }
+  }
+}
+
+static void Clear() {
+  if (rgb_matrix) {
+    delete rgb_matrix;
   }
 }
 
