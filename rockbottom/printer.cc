@@ -10,6 +10,8 @@
 
 namespace {
 
+using rgb_matrix::Color;
+using rgb_matrix::Font;
 using rgb_matrix::RGBMatrix;
 using rgb_matrix::RuntimeOptions;
 
@@ -53,7 +55,14 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
       return;
     }
 
-    rgb_matrix->Fill(63, 63, 0);
+    Font font;
+    if (!font.LoadFont("../fonts/9x15.bdf")) {
+      std::cerr << "Failed to load font" << std::endl;
+      return;
+    }
+
+    rgb_matrix::DrawText(rgb_matrix, font, 2, 15, Color(255, 0, 0),
+                         "Testing text!");
 
   } else {
     // Just print to console

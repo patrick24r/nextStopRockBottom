@@ -14,7 +14,7 @@ class Printer {
 
  private:
   static constexpr const char* kHardwareMapping = "adafruit-hat";
-  static constexpr int kPanelCount = 1;
+  static constexpr int kPanelCount = 2;
   static constexpr int kPanelWidthPixels = 64;
   static constexpr int kPanelHeightPixels = 32;
   static constexpr int kFontHeightPixels = 8;
