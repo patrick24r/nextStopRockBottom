@@ -8,7 +8,9 @@ cc_library(
     srcs=["printer.cc"],
     deps=[":fetcher",
           ":rgbmatrix",
+          "@bazel_tools//tools/cpp/runfiles",
           ],
+    data=[":fonts"],
     visibility=["//:__pkg__"],
 )
 
@@ -40,4 +42,9 @@ cc_library(
     visibility=["//visibility:private"],
     linkopts=["-lpthread", "-lrt"],
     copts=["-O3", "-Wall"],
+)
+
+filegroup(
+    name="fonts",
+    srcs=glob(["rpi-rgb/fonts/*.bdf"]),
 )

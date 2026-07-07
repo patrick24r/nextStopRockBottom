@@ -1,5 +1,6 @@
 #include "printer.h"
 
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -7,7 +8,6 @@
 
 #include "graphics.h"
 #include "led-matrix.h"
-
 namespace {
 
 using rgb_matrix::Color;
@@ -56,13 +56,20 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
     }
 
     Font font;
-    if (!font.LoadFont("../fonts/9x15.bdf")) {
+    if (!font.LoadFont("./rockbottom/rpi-rgb/fonts/9x15.bdf")) {
       std::cerr << "Failed to load font" << std::endl;
       return;
     }
 
-    rgb_matrix::DrawText(rgb_matrix, font, 2, 15, Color(255, 0, 0),
-                         "Testing text!");
+    for (int row = 0; row < rowsToPrint && row < bus_times.size(); row++) {
+      char line_buffer[100];
+      snprintf(line_buffer, sizeof(line_buffer), "%-3s %15s %2d min",
+               bus_times[row].route_id.c_str(),
+               bus_times[row].destination.c_str(),
+               bus_times[row].minutes_to_arrival);
+      rgb_matrix::DrawText(rgb_matrix, font, 0, row * kFontHeightPixels,
+                           Color(255, 0, 0), line_buffer);
+    }
 
   } else {
     // Just print to console
