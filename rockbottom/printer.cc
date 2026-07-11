@@ -25,16 +25,16 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
   int rowsToPrint = kHeightPixels / kFontHeightPixels;
 
   if (IsRaspberryPi()) {
-    std::cout << "Raspberry Pi detected!" << std::endl;
-
     RGBMatrix::Options matrix_options;
     matrix_options.hardware_mapping = kHardwareMapping;
     matrix_options.rows = kPanelHeightPixels;
     matrix_options.cols = kPanelWidthPixels;
     matrix_options.chain_length = kPanelCount;
     matrix_options.parallel = 1;
+    matrix_options.pwm_bits = 8;
 
     RuntimeOptions runtime_options;
+    runtime_options.gpio_slowdown = 2;
     runtime_options.drop_privileges = 1;
 
     std::string error;
@@ -55,19 +55,22 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
       return;
     }
 
+    rgb_matrix->Clear();
+
     Font font;
-    if (!font.LoadFont("./rockbottom/rpi-rgb/fonts/9x15.bdf")) {
+    if (!font.LoadFont("./rockbottom/rpi-rgb/fonts/5x8.bdf")) {
       std::cerr << "Failed to load font" << std::endl;
       return;
     }
 
     for (int row = 0; row < rowsToPrint && row < bus_times.size(); row++) {
       char line_buffer[100];
-      snprintf(line_buffer, sizeof(line_buffer), "%-3s %15s %2d min",
+      snprintf(line_buffer, sizeof(line_buffer), "%-3s %17s %2d min",
                bus_times[row].route_id.c_str(),
                bus_times[row].destination.c_str(),
                bus_times[row].minutes_to_arrival);
-      rgb_matrix::DrawText(rgb_matrix, font, 0, row * kFontHeightPixels,
+      rgb_matrix::DrawText(rgb_matrix, font, 0,
+                           row * kFontHeightPixels + kFontHeightPixels,
                            Color(255, 0, 0), line_buffer);
     }
 
@@ -77,12 +80,13 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
       std::cout << time.route_id << " " << time.destination << " "
                 << time.minutes_to_arrival << " min" << std::endl;
     }
+    std::cout << std::endl;
   }
 }
 
-static void Clear() {
+void Printer::Clear() {
   if (rgb_matrix) {
-    delete rgb_matrix;
+    rgb_matrix->Clear();
   }
 }
 

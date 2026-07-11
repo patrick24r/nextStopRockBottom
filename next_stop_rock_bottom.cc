@@ -1,7 +1,9 @@
 
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <thread>
 
 #include "rockbottom/fetcher.h"
 #include "rockbottom/printer.h"
@@ -29,12 +31,14 @@ int main() {
     return 1;
   }
 
-  // Get the bus times from the MBTA website
-  auto bus_times = Fetcher::FetchTimes(stop_ids);
-
-  // Print the bus times
-  Printer::PrintTimes(bus_times);
   while (1) {
+    // Get the bus times from the MBTA website
+    auto bus_times = Fetcher::FetchTimes(stop_ids);
+
+    // Print the bus times
+    Printer::PrintTimes(bus_times);
+
+    std::this_thread::sleep_for(std::chrono::seconds(50));
   }
   return 0;
 }
