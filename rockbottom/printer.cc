@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -22,8 +23,22 @@ namespace rockbottom {
 static RGBMatrix* rgb_matrix = nullptr;
 
 void Printer::PrintTimes(std::vector<BusTime> bus_times) {
+  bool isRaspberryPi = IsRaspberryPi();
   int rowsToPrint = kHeightPixels / kFontHeightPixels;
 
+  // Each row is structured '[Route ID] [Destination Name] [Minutes] m'
+  // Some route IDs are longer than others, so dynamically detect the
+  // length of what we're printing and account for it
+  int columnsToPrint = kWidthPixels / kFontWidthPixels;
+  size_t routeIdColumns = 0;
+  for (auto& time : bus_times) {
+    routeIdColumns = std::max(routeIdColumns, time.route_id.length());
+  }
+  size_t destinationColumns = columnsToPrint - (routeIdColumns + 1) - 4;
+  std::string formatString = "%-" + std::to_string(routeIdColumns) + "s %-" +
+                             std::to_string(destinationColumns) + "s %2d m";
+
+  Font font;
   if (IsRaspberryPi()) {
     RGBMatrix::Options matrix_options;
     matrix_options.hardware_mapping = kHardwareMapping;
@@ -56,33 +71,29 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
     }
 
     rgb_matrix->Clear();
-
-    Font font;
     if (!font.LoadFont("./rockbottom/rpi-rgb/fonts/5x8.bdf")) {
       std::cerr << "Failed to load font" << std::endl;
       return;
     }
+  }
 
-    for (int row = 0; row < rowsToPrint && row < bus_times.size(); row++) {
-      char line_buffer[100];
-      snprintf(line_buffer, sizeof(line_buffer), "%-3s %-16s %2d min",
-               bus_times[row].route_id.c_str(),
-               bus_times[row].destination.c_str(),
-               bus_times[row].minutes_to_arrival);
+  for (int row = 0; row < rowsToPrint && row < bus_times.size(); row++) {
+    char lineBuffer[100];
+    snprintf(lineBuffer, sizeof(lineBuffer), formatString.c_str(),
+             bus_times[row].route_id.c_str(),
+             bus_times[row].destination.c_str(),
+             bus_times[row].minutes_to_arrival);
+    if (isRaspberryPi) {
       rgb_matrix::DrawText(rgb_matrix, font, 0,
                            row * kFontHeightPixels + kFontHeightPixels,
-                           Color(255, 0, 0), line_buffer);
+                           Color(255, 0, 0), lineBuffer);
+    } else {
+      std::cout << lineBuffer << std::endl;
     }
-
-  } else {
-    // Just print to console
-    for (auto& time : bus_times) {
-      std::cout << time.route_id << " " << time.destination << " "
-                << time.minutes_to_arrival << " min" << std::endl;
-    }
-    std::cout << std::endl;
   }
 }
+
+// std::string Printer::GenerateLine(BusTime& bus_time) {}
 
 void Printer::Clear() {
   if (rgb_matrix) {

@@ -18,6 +18,8 @@ class Printer {
   static constexpr int kPanelWidthPixels = 64;
   static constexpr int kPanelHeightPixels = 32;
   static constexpr int kFontHeightPixels = 8;
+  static constexpr int kFontWidthPixels = 5;
+
   // Panels are organized in a single, wide chain
   static constexpr int kWidthPixels = kPanelCount * kPanelWidthPixels;
   static constexpr int kHeightPixels = kPanelHeightPixels;
