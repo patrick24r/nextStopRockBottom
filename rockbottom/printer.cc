@@ -34,7 +34,7 @@ void Printer::PrintTimes(std::vector<BusTime> bus_times) {
   for (auto& time : bus_times) {
     routeIdColumns = std::max(routeIdColumns, time.route_id.length());
   }
-  size_t destinationColumns = columnsToPrint - (routeIdColumns + 1) - 4;
+  size_t destinationColumns = columnsToPrint - (routeIdColumns + 1) - 5;
   std::string formatString = "%-" + std::to_string(routeIdColumns) + "s %-" +
                              std::to_string(destinationColumns) + "s %2d m";
 
